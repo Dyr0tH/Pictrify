@@ -5,7 +5,7 @@ import { supabase } from "@/utils/supabase/supabase-client";
 import DashboardRestricted from "@/components/DashboardRestricted";
 
 // Check if dashboard access is enabled based on the environment variable
-const DASHBOARD_ACCESS = process.env.DASHBOARD_ACCESS === 'true';
+const DASHBOARD_ACCESS = process.env.NEXT_PUBLIC_DASHBOARD_ACCESS === 'true';
 
 interface DashboardAccessProps {
   children: ReactNode;
