@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/utils/supabase/supabase-client";
+import DashboardAccess from "@/components/DashboardAccess";
 
 export default function DashboardLayout({
   children,
@@ -30,14 +31,15 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#1A1E2D] to-[#0D1117] text-white">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="h-12 w-12 rounded-full bg-[#FF6B6B]/30 mb-4"></div>
-          <div className="h-4 w-48 bg-[#FF6B6B]/30 rounded"></div>
-        </div>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#0A0A0A] to-[#000000] text-white">
+        <div className="w-12 h-12 border-4 border-t-[#FF3366] border-r-[#FF33A8]/40 border-b-[#FF33A8] border-l-[#FF3366]/40 rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  return children;
+  return (
+    <DashboardAccess>
+      {children}
+    </DashboardAccess>
+  );
 } 

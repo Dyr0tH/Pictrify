@@ -11,6 +11,8 @@ import { Menu, X, CheckCircle, ArrowRight, Brain, Shield, Mail, Github, TwitterI
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/utils/supabase/supabase-client"
+import PricingPlans from "@/components/PricingPlans"
+import LatestAnnouncement from "@/components/LatestAnnouncement"
 
 // Simple card component to replace TiltedCard
 const StatCard = ({ title, value, description, color }: { title: string, value: string, description: string, color: string }) => (
@@ -85,8 +87,8 @@ export default function Page() {
                             <div className="hidden md:flex items-center space-x-6">
                                 <div className="flex space-x-6 mr-6">
                                     <Link href="#styles" className="text-[#94A3B8] hover:text-[#FF3366] transition-colors">Styles</Link>
-                                    <Link href="#how-it-works" className="text-[#94A3B8] hover:text-[#FF3366] transition-colors">How It Works</Link>
-                                    <Link href="#gallery" className="text-[#94A3B8] hover:text-[#FF3366] transition-colors">Gallery</Link>
+                                    <Link href="#about-us" className="text-[#94A3B8] hover:text-[#FF3366] transition-colors">About QuickArt</Link>
+                                    <Link href="#services" className="text-[#94A3B8] hover:text-[#FF3366] transition-colors">Services</Link>
                                     <Link href="#pricing" className="text-[#94A3B8] hover:text-[#FF3366] transition-colors">Pricing</Link>
                                     <Link href="/announcements" className="text-[#94A3B8] hover:text-[#FF3366] transition-colors">Announcements</Link>
                                 </div>
@@ -118,8 +120,8 @@ export default function Page() {
                         <div className="md:hidden bg-[#0A0A0A] border-b border-[#FF3366]/30 shadow-lg">
                             <div className="container mx-auto px-4 py-4 space-y-4">
                                 <Link href="#styles" className="block text-[#94A3B8] hover:text-[#FF3366] transition-colors py-2">Styles</Link>
-                                <Link href="#how-it-works" className="block text-[#94A3B8] hover:text-[#FF3366] transition-colors py-2">How It Works</Link>
-                                <Link href="#gallery" className="block text-[#94A3B8] hover:text-[#FF3366] transition-colors py-2">Gallery</Link>
+                                <Link href="#about-us" className="block text-[#94A3B8] hover:text-[#FF3366] transition-colors py-2">About QuickArt</Link>
+                                <Link href="#services" className="block text-[#94A3B8] hover:text-[#FF3366] transition-colors py-2">Services</Link>
                                 <Link href="#pricing" className="block text-[#94A3B8] hover:text-[#FF3366] transition-colors py-2">Pricing</Link>
                                 <Link href="/announcements" className="block text-[#94A3B8] hover:text-[#FF3366] transition-colors py-2">Announcements</Link>
                                 <div className="pt-2 border-t border-[#FF3366]/30">
@@ -152,8 +154,8 @@ export default function Page() {
                                         Start Creating
                                     </Button>
                                 </AnimatedLink>
-                                <Link href="#gallery" className="flex items-center justify-center space-x-2 text-[#FF3366] hover:text-[#FF33A8] transition-all px-4 py-2 border border-[#FF3366]/30 rounded-full hover:border-[#FF33A8] w-full sm:w-auto">
-                                    <span>View Gallery</span>
+                                <Link href="/announcements" className="flex items-center justify-center space-x-2 text-[#FF3366] hover:text-[#FF33A8] transition-all px-4 py-2 border border-[#FF3366]/30 rounded-full hover:border-[#FF33A8] w-full sm:w-auto">
+                                    <span>Announcements</span>
                                     <ArrowRight size={16} />
                                 </Link>
                             </div>
@@ -189,8 +191,11 @@ export default function Page() {
                         </div>
                     </section>
 
+                    {/* Latest Announcement */}
+                    <LatestAnnouncement />
+
                     {/* Art Styles Gallery Section */}
-                    <section id="gallery" className="mb-16 md:mb-24">
+                    <section id="styles" className="mb-16 md:mb-24">
                         <div className="text-center mb-12">
                             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-[#FF3366] to-[#FF33A8]">
                                 Our Art Styles
@@ -422,6 +427,16 @@ export default function Page() {
                             </Card>
                         </div>
                     </section>
+
+                    {/* Pricing Section */}
+                    <section id="pricing" className="mb-16 md:mb-24">
+                        <div className="text-center mb-12">
+                            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-[#FF3366] to-[#FF33A8]">Pricing</h2>
+                            <p className="text-lg text-[#94A3B8] max-w-3xl mx-auto">Choose the plan that suits your creative needs</p>
+                        </div>
+
+                        <PricingPlans />
+                    </section>
                 </main>
 
                 {/* Updated Footer */}
@@ -445,7 +460,7 @@ export default function Page() {
                                     <a href="#" className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center text-[#94A3B8] hover:bg-[#FF3366]/20 hover:text-[#FF3366] transition-all duration-300">
                                         <Instagram size={18} />
                                     </a>
-                                    <a href="#" className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center text-[#94A3B8] hover:bg-[#FF3366]/20 hover:text-[#FF3366] transition-all duration-300">
+                                    <a href="https://github.com/Dyr0tH/Pictrify" className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center text-[#94A3B8] hover:bg-[#FF3366]/20 hover:text-[#FF3366] transition-all duration-300">
                                         <Github size={18} />
                                     </a>
                                 </div>
@@ -455,9 +470,10 @@ export default function Page() {
                                 <h3 className="text-white font-semibold mb-6 text-lg">Quick Links</h3>
                                 <ul className="space-y-4">
                                     <li><Link href="#styles" className="text-[#94A3B8] hover:text-[#FF3366] transition-colors text-sm">Styles</Link></li>
-                                    <li><Link href="#how-it-works" className="text-[#94A3B8] hover:text-[#FF3366] transition-colors text-sm">How It Works</Link></li>
-                                    <li><Link href="#gallery" className="text-[#94A3B8] hover:text-[#FF3366] transition-colors text-sm">Gallery</Link></li>
+                                    <li><Link href="#about-us" className="text-[#94A3B8] hover:text-[#FF3366] transition-colors text-sm">About QuickArt</Link></li>
+                                    <li><Link href="#services" className="text-[#94A3B8] hover:text-[#FF3366] transition-colors text-sm">Services</Link></li>
                                     <li><Link href="#pricing" className="text-[#94A3B8] hover:text-[#FF3366] transition-colors text-sm">Pricing</Link></li>
+                                    <li><Link href="/announcements" className="text-[#94A3B8] hover:text-[#FF3366] transition-colors text-sm">Announcements</Link></li>
                                 </ul>
                             </div>
                             
