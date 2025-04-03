@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase/supabase-client';
-import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,19 +12,33 @@ import TransitionTemplate from '@/components/TransitionTemplate';
 import { cn } from '@/utils';
 
 // Read the environment variable
-const PAYMENTS_ENABLED = process.env.PAYMENTS === 'true';
+const PAYMENTS_ENABLED = process.env.NEXT_PUBLIC_PAYMENTS === 'true';
+
+// Define interfaces for the data structures
+interface Plan {
+  id: string;
+  name: string;
+  price: number;
+  credits: number;
+  popular?: boolean;
+  benefits?: string[];
+}
+
+interface UserData {
+  id: string;
+  credits: number;
+  [key: string]: any;
+}
 
 export default function PurchaseCredits() {
-  const [loading, setLoading] = useState(false);
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [totalPrice, setTotalPrice] = useState<number | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [userData, setUserData] = useState<any>(null);
-  const [userLoading, setUserLoading] = useState(true);
-  const [plans, setPlans] = useState<any[]>([]);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [plansLoading, setPlansLoading] = useState(true);
+  const [plans, setPlans] = useState<Plan[]>([]);
 
   // Discount code state
   const [discountCode, setDiscountCode] = useState('');
@@ -43,19 +56,19 @@ export default function PurchaseCredits() {
       const fetchPlans = async () => {
         setPlansLoading(true);
         try {
-          const { data, error } = await supabase
+          const { data, error: plansError } = await supabase
             .from('plans')
             .select('*')
             .order('price', { ascending: true });
             
-          if (error) {
-            throw error;
+          if (plansError) {
+            throw plansError;
           }
           
           if (data) {
-            setPlans(data);
+            setPlans(data as Plan[]);
           }
-        } catch (err) {
+        } catch (err: unknown) {
           console.error('Error fetching plans:', err);
           setError('Failed to load plans. Please try again later.');
         } finally {
@@ -67,23 +80,27 @@ export default function PurchaseCredits() {
     }
 
     const getUserData = async () => {
-      setUserLoading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
 
-      const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data, error: userDataError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', user.id)
+            .single();
 
-      if (user) {
-        const { data, error } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (data) {
-          setUserData(data);
+          if (data) {
+            setUserData(data as UserData);
+          }
+          
+          if (userDataError) {
+            console.error('Error fetching user data:', userDataError);
+          }
         }
+      } catch (err: unknown) {
+        console.error('Error in getUserData:', err);
       }
-
-      setUserLoading(false);
     };
 
     getUserData();
@@ -142,7 +159,7 @@ export default function PurchaseCredits() {
         if (!result.valid) {
           setDiscountApplied(false);
           setDiscountPercent(0);
-          setTotalPrice(plan?.price || 0);
+          setTotalPrice(plan.price);
           setDiscountError(result.error || 'Invalid discount code');
           throw new Error(result.error || 'Invalid discount code');
         }
@@ -159,37 +176,34 @@ export default function PurchaseCredits() {
       }
 
       // Add credits to user's account
-      const { data, error } = await supabase
+      const { error: updateError } = await supabase
         .from('users')
         .update({
-          credits: (userData?.credits || 0) + (plan?.credits || 0),
+          credits: (userData?.credits || 0) + (plan.credits || 0),
         })
         .eq('id', user.id);
 
-      if (error) {
-        throw error;
+      if (updateError) {
+        throw updateError;
       }
 
       // Record the transaction
-      const { data: transactionData, error: transactionError } = await supabase
+      const { error: transactionError } = await supabase
         .from('transactions')
         .insert([{
           user_id: user.id,
-          amount: totalPrice || plan?.price || 0,
+          amount: totalPrice || plan.price || 0,
           type: 'TEST'
-        }])
-        .select();
+        }]);
 
       if (transactionError) {
         console.log('Error recording transaction:', transactionError);
         console.log('Transaction details:', {
           user_id: user.id,
-          amount: totalPrice || plan?.price || 0,
+          amount: totalPrice || plan.price || 0,
           type: 'TEST'
         });
         // Don't throw here as credits are already added
-      } else {
-        console.log('Transaction recorded successfully:', transactionData);
       }
 
       // If discount was applied, increment usage
@@ -232,9 +246,9 @@ export default function PurchaseCredits() {
         router.push('/dashboard?purchase=success');
       }, 3000);
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.log('Payment error:', err);
-      setError(err.message || 'Failed to process payment. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to process payment. Please try again.');
     } finally {
       setPaymentProcessing(false);
     }

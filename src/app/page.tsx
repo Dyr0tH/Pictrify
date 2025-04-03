@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import AnimatedContent from "@/blocks/Animations/AnimatedContent/AnimatedContent"
 import AnimatedLink from '@/components/AnimatedLink'
 import TransitionTemplate from '@/components/TransitionTemplate'
-import { Menu, X, CheckCircle, ArrowRight, Brain, Heart, Users, BookOpen, BarChart4, Shield, Mail, Phone, MapPin, Github, TwitterIcon, Linkedin, ExternalLink, Clock, Lightbulb, Target, Wand, MessageSquare, Instagram, Images } from "lucide-react"
+import { Menu, X, CheckCircle, ArrowRight, Brain, Shield, Mail, Github, TwitterIcon, Wand, MessageSquare, Instagram, Images } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/utils/supabase/supabase-client"

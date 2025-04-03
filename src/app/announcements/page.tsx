@@ -36,9 +36,9 @@ export default function AnnouncementsPage() {
         }
         
         setAnnouncements(data || []);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error fetching announcements:", err);
-        setError(err.message || "Failed to load announcements");
+        setError(err instanceof Error ? err.message : "Failed to load announcements");
       } finally {
         setLoading(false);
       }
@@ -50,7 +50,8 @@ export default function AnnouncementsPage() {
   const formatDate = (dateString: string) => {
     try {
       return format(new Date(dateString), "MMMM dd, yyyy");
-    } catch (error) {
+    } catch (formatError) {
+      console.error("Error formatting date:", formatError);
       return "Unknown date";
     }
   };

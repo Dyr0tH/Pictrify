@@ -36,11 +36,10 @@ export async function POST(request: Request) {
     }
     
     // Increment the 'used' counter
-    const { data, error: updateError } = await supabase
+    const { error: updateError } = await supabase
       .from('discounts')
       .update({ used: (currentUsage + 1) })
-      .eq('id', discountData.id)
-      .select();
+      .eq('id', discountData.id);
     
     if (updateError) {
       throw updateError;
