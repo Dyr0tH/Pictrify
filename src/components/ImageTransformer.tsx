@@ -111,10 +111,16 @@ export default function ImageTransformer({ userCredits, onCreditsUpdate }: Image
                 body: formData
             });
 
-            const data = await response.json();
+            let data;
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                console.error("JSON parsing error:", jsonError);
+                throw new Error("Failed to parse API response. The server may be experiencing issues.");
+            }
 
             if (!response.ok) {
-                throw new Error(data.error || "Failed to transform image");
+                throw new Error(data?.error || "Failed to transform image");
             }
 
             setTransformedImage(data.imageUrl);
@@ -122,7 +128,7 @@ export default function ImageTransformer({ userCredits, onCreditsUpdate }: Image
             // Call the onCreditsUpdate callback to update credits in parent component
             await onCreditsUpdate();
         } catch (err) {
-            setError(err instanceof Error ? err.message : "An error occurred");
+            setError(err instanceof Error ? err.message : "An error occurred while transforming the image");
         } finally {
             setIsLoading(false);
         }

@@ -47,39 +47,60 @@ export async function POST(request: Request) {
     const base64Image = Buffer.from(buffer).toString('base64')
     
     // First analyze the image with GPT-4 Vision to generate a detailed description
-    const visionResponse = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "text", text: `Analyze this image and create a detailed description for transforming it into ${style} style. Focus on the key elements, composition, subject matter, colors, and overall feel.` },
-            {
-              type: "image_url",
-              image_url: {
-                url: `data:image/${imageFile.type};base64,${base64Image}`
+    let visionResponse;
+    try {
+      visionResponse = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: `Analyze this image and create a detailed description for transforming it into ${style} style. Focus on the key elements, composition, subject matter, colors, and overall feel.` },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/${imageFile.type};base64,${base64Image}`
+                }
               }
-            }
-          ]
-        }
-      ],
-      max_tokens: 500
-    });
+            ]
+          }
+        ],
+        max_tokens: 500
+      });
+    } catch (visionError: any) {
+      console.error('Vision API error:', visionError);
+      return NextResponse.json(
+        { error: 'Failed to analyze image: ' + (visionError.message || 'Unknown vision API error') },
+        { status: 500 }
+      )
+    }
     
     const imageDescription = visionResponse.choices[0]?.message?.content || `An image in ${style} style`;
 
     // Use DALL-E 3 for image generation with the detailed description
-    const response = await openai.images.generate({
-      model: "dall-e-3",
-      prompt: `${imageDescription}. Transform this scene into authentic ${style} style. Make it look high quality and maintain the original composition and key elements while applying the artistic style.`,
-      n: 1,
-      size: "1024x1024",
-      quality: "standard",
-      style: "vivid"
-    })
+    let response;
+    try {
+      response = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: `${imageDescription}. Transform this scene into authentic ${style} style. Make it look high quality and maintain the original composition and key elements while applying the artistic style.`,
+        n: 1,
+        size: "1024x1024",
+        quality: "standard",
+        style: "vivid"
+      });
+    } catch (dalleError: any) {
+      console.error('DALL-E API error:', dalleError);
+      return NextResponse.json(
+        { error: 'Failed to generate transformed image: ' + (dalleError.message || 'Unknown DALL-E API error') },
+        { status: 500 }
+      )
+    }
 
     if (!response.data[0]?.url) {
-      throw new Error('Failed to generate transformed image')
+      return NextResponse.json(
+        { error: 'No image URL returned from the API' },
+        { status: 500 }
+      )
     }
 
     // Deduct credits after successful transformation
@@ -108,7 +129,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Error transforming image:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to transform image' },
+      { error: typeof error.message === 'string' ? error.message : 'Failed to transform image' },
       { status: 500 }
     )
   }
