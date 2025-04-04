@@ -1,12 +1,23 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Megaphone } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import TransitionTemplate from "@/components/TransitionTemplate";
+import { supabase } from "@/utils/supabase/supabase-client";
 
 export default function DashboardRestricted() {
+  const router = useRouter();
+  
+  const handleReturnHome = async () => {
+    // Log the user out
+    await supabase.auth.signOut();
+    // Redirect to homepage
+    router.push("/");
+  };
+
   return (
     <TransitionTemplate>
       <div className="min-h-screen bg-gradient-to-b from-[#0A0A0A] to-[#000000] flex items-center justify-center p-4">
@@ -50,15 +61,27 @@ export default function DashboardRestricted() {
           <div className="mx-auto w-32 h-1 bg-gradient-to-r from-[#FF3366]/50 to-[#FF33A8]/50 rounded-full mb-6"></div>
           
           <p className="text-[#94A3B8] mb-8">
-            Thank you for your patience. In the meantime, you can return to the homepage.
+            Thank you for your patience. In the meantime, you can return to the homepage or check our latest announcements.
           </p>
           
-          <Link href="/">
-            <Button className="bg-gradient-to-r from-[#FF3366] to-[#FF33A8] text-white hover:from-[#FF33A8] hover:to-[#FF3366] transition-all duration-300 shadow-md hover:shadow-[#FF3366]/20 rounded-full">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button 
+              onClick={handleReturnHome}
+              className="bg-gradient-to-r from-[#FF3366] to-[#FF33A8] text-white hover:from-[#FF33A8] hover:to-[#FF3366] transition-all duration-300 shadow-md hover:shadow-[#FF3366]/20 rounded-full w-full sm:w-auto"
+            >
               <ArrowLeft className="mr-2 h-4 w-4" />
               <span>Return to Homepage</span>
             </Button>
-          </Link>
+            
+            <Link href="/announcements">
+              <Button 
+                className="bg-[#0A0A0A] border border-[#FF3366]/70 text-white hover:bg-[#FF3366]/15 transition-all duration-300 shadow-md hover:shadow-[#FF3366]/10 rounded-full w-full sm:w-auto"
+              >
+                <Megaphone className="mr-2 h-4 w-4 text-[#FF3366]" />
+                <span>View Announcements</span>
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </TransitionTemplate>

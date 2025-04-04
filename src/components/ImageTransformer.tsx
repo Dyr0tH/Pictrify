@@ -215,7 +215,14 @@ export default function ImageTransformer({ userCredits, onCreditsUpdate }: Image
                                     alt="Selected"
                                     className="max-h-64 mx-auto rounded-lg"
                                 />
-                                <p className="text-[#94A3B8]">{selectedImage.name}</p>
+                                <div className="relative group">
+                                    <p className="text-[#94A3B8] max-w-full truncate px-2" title={selectedImage.name}>
+                                        {selectedImage.name}
+                                    </p>
+                                    <div className="absolute left-0 right-0 -bottom-8 hidden group-hover:block bg-[#0A0A0A] border border-[#334155]/50 p-1 rounded-md z-10 text-xs text-[#94A3B8] break-all">
+                                        {selectedImage.name}
+                                    </div>
+                                </div>
                             </div>
                         ) : (
                             <div className="space-y-4">
