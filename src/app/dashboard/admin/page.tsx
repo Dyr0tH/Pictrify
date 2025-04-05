@@ -23,26 +23,43 @@ export default function AdminDashboard() {
     const fetchStats = async () => {
       setLoading(true);
       
-      // Fetch total users
-      const { count: userCount } = await supabase
-        .from('users')
-        .select('*', { count: 'exact', head: true });
+      try {
+        // Fetch total users
+        const { count: userCount } = await supabase
+          .from('users')
+          .select('*', { count: 'exact', head: true });
 
-      // Fetch active discounts
-      const { count: discountCount } = await supabase
-        .from('discounts')
-        .select('*', { count: 'exact', head: true })
-        .gt('expires_at', new Date().toISOString());
-      
-      // Set stats - in a real app, you would fetch real data for all metrics
-      setStats({
-        totalUsers: userCount || 0,
-        totalTransformations: 250, // Placeholder data
-        totalCreditsPurchased: 1500, // Placeholder data
-        activeDiscounts: discountCount || 0
-      });
-      
-      setLoading(false);
+        // Fetch active discounts
+        const { count: discountCount } = await supabase
+          .from('discounts')
+          .select('*', { count: 'exact', head: true })
+          .gt('expires_at', new Date().toISOString());
+        
+        // Fetch transaction data
+        const { data: transactionData } = await supabase
+          .from('transactions')
+          .select('amount');
+        
+        // Calculate total credits purchased
+        const totalCredits = transactionData 
+          ? transactionData.reduce((sum, transaction) => sum + (transaction.amount || 0), 0) 
+          : 0;
+        
+        // Fetch transformations count (placeholder - adjust to your actual data structure)
+        const transformationsCount = 250; // Replace with actual query when available
+        
+        // Set stats
+        setStats({
+          totalUsers: userCount || 0,
+          totalTransformations: transformationsCount,
+          totalCreditsPurchased: totalCredits,
+          activeDiscounts: discountCount || 0
+        });
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchStats();
@@ -64,7 +81,7 @@ export default function AdminDashboard() {
               <Link href="/dashboard">
                 <Button 
                   variant="ghost" 
-                  className="text-[#94A3B8] hover:text-[#FF6B6B] flex items-center space-x-2"
+                  className="text-[#94A3B8] hover:text-[#FF3366] flex items-center space-x-2"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   <span>Back to Dashboard</span>
@@ -191,6 +208,20 @@ export default function AdminDashboard() {
                     <div>
                       <h3 className="text-xl font-bold text-white">View Users</h3>
                       <p className="text-[#94A3B8]">Manage user accounts</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+              
+              <Link href="/dashboard/admin/transactions">
+                <Card className="bg-[#0A0A0A] border border-[#334155]/30 hover:border-[#FF3366]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#FF3366]/10 h-full cursor-pointer">
+                  <CardContent className="p-6 flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#FF3366]/20 to-[#FF33A8]/20 flex items-center justify-center">
+                      <CreditCard className="text-[#FF3366] h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white">Transactions</h3>
+                      <p className="text-[#94A3B8]">View payment history</p>
                     </div>
                   </CardContent>
                 </Card>

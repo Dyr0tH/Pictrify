@@ -182,32 +182,32 @@ export default function DiscountsPage() {
 
   return (
     <TransitionTemplate>
-      <div className="min-h-screen bg-gradient-to-b from-[#1A1E2D] to-[#0D1117] text-white">
+      <div className="min-h-screen bg-gradient-to-b from-[#0A0A0A] to-[#000000] text-white">
         {/* Add custom styles to override focus ring color */}
         <style jsx global>{`
           input:focus-visible, button:focus-visible {
             outline: none !important;
-            box-shadow: 0 0 0 2px #FF6B6B !important;
-            border-color: #FF6B6B !important;
+            box-shadow: 0 0 0 2px #FF3366 !important;
+            border-color: #FF3366 !important;
           }
         `}</style>
         
         {/* Header */}
-        <header className="bg-[#0D1117]/90 backdrop-blur-md shadow-lg border-b border-[#FF6B6B]/10">
+        <header className="bg-[#0A0A0A]/90 backdrop-blur-md shadow-lg border-b border-[#FF3366]/20">
           <div className="container mx-auto px-4 py-4">
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-2 group">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#FF6B6B] to-[#FF33A8] flex items-center justify-center shadow-md group-hover:shadow-[#FF6B6B]/50 transition-all duration-300">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#FF3366] to-[#FF33A8] flex items-center justify-center shadow-md group-hover:shadow-[#FF3366]/50 transition-all duration-300">
                   <span className="text-white font-bold text-xl">P</span>
                 </div>
-                <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#FF6B6B] to-[#FF33A8] group-hover:from-[#FF33A8] group-hover:to-[#FF6B6B] transition-all duration-300 font-['Righteous'] tracking-wider">
+                <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#FF3366] to-[#FF33A8] group-hover:from-[#FF33A8] group-hover:to-[#FF3366] transition-all duration-300 font-['Righteous'] tracking-wider">
                   PICTRIFY
                 </span>
               </div>
               <Link href="/dashboard/admin">
                 <Button
                   variant="ghost"
-                  className="text-[#94A3B8] hover:text-[#FF6B6B] flex items-center space-x-2"
+                  className="text-[#94A3B8] hover:text-[#FF3366] flex items-center space-x-2"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   <span>Back to Admin</span>
@@ -222,7 +222,7 @@ export default function DiscountsPage() {
           <div className="max-w-6xl mx-auto">
             <header className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#FF6B6B] to-[#FF33A8] mb-2">
+                <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#FF3366] to-[#FF33A8] mb-2">
                   Discount Codes
                 </h1>
                 <p className="text-[#94A3B8]">
@@ -232,7 +232,7 @@ export default function DiscountsPage() {
               <div className="mt-4 md:mt-0">
                 <Button
                   onClick={() => setFormOpen(!formOpen)}
-                  className="bg-gradient-to-r from-[#FF6B6B] to-[#FF33A8] text-white hover:shadow-lg hover:shadow-[#FF6B6B]/20 transition-all duration-300"
+                  className="bg-gradient-to-r from-[#FF3366] to-[#FF33A8] text-white hover:shadow-lg hover:shadow-[#FF3366]/20 transition-all duration-300"
                 >
                   {formOpen ? (
                     <>
@@ -251,13 +251,13 @@ export default function DiscountsPage() {
 
             {/* New Discount Form */}
             {formOpen && (
-              <Card className="bg-gradient-to-br from-[#1E293B] to-[#0D1117] border border-[#334155]/30 shadow-xl mb-8 relative overflow-hidden">
-                <div className="absolute inset-0 bg-[#1E293B] opacity-80 z-0"></div>
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#FF6B6B]/5 to-[#FF33A8]/5 opacity-100 blur-sm z-0"></div>
+              <Card className="bg-gradient-to-br from-[#0A0A0A] to-[#000000] border border-[#334155]/30 shadow-xl mb-8 relative overflow-hidden">
+                <div className="absolute inset-0 bg-[#0A0A0A] opacity-80 z-0"></div>
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#FF3366]/5 to-[#FF33A8]/5 opacity-100 blur-sm z-0"></div>
                 
                 <CardHeader className="relative z-10">
                   <CardTitle className="text-2xl font-bold text-white flex items-center space-x-2">
-                    <Tag className="h-5 w-5 text-[#FF6B6B]" />
+                    <Tag className="h-5 w-5 text-[#FF3366]" />
                     <span>Create New Discount Code</span>
                   </CardTitle>
                 </CardHeader>
@@ -273,7 +273,7 @@ export default function DiscountsPage() {
                             id="discountCode"
                             value={code}
                             onChange={(e) => setCode(e.target.value.toUpperCase())}
-                            className="bg-[#0D1117] border-[#334155]/50 pl-10 text-white focus:border-[#FF6B6B]"
+                            className="bg-[#0A0A0A] border-[#334155]/50 pl-10 text-white focus:border-[#FF3366]"
                             placeholder="e.g. SUMMER2023"
                           />
                         </div>
@@ -290,7 +290,7 @@ export default function DiscountsPage() {
                             max="100"
                             value={discountPercent}
                             onChange={(e) => setDiscountPercent(Number(e.target.value))}
-                            className="bg-[#0D1117] border-[#334155]/50 pl-10 text-white focus:border-[#FF6B6B]"
+                            className="bg-[#0A0A0A] border-[#334155]/50 pl-10 text-white focus:border-[#FF3366]"
                           />
                         </div>
                       </div>
@@ -305,7 +305,7 @@ export default function DiscountsPage() {
                           min="1"
                           value={maxUses}
                           onChange={(e) => setMaxUses(e.target.value)}
-                          className="bg-[#0D1117] border-[#334155]/50 text-white focus:border-[#FF6B6B]"
+                          className="bg-[#0A0A0A] border-[#334155]/50 text-white focus:border-[#FF3366]"
                           placeholder="Unlimited"
                         />
                       </div>
@@ -321,7 +321,7 @@ export default function DiscountsPage() {
                             type="date"
                             value={expiryDate}
                             onChange={(e) => setExpiryDate(e.target.value)}
-                            className="bg-[#0D1117] border-[#334155]/50 pl-10 text-white focus:border-[#FF6B6B]"
+                            className="bg-[#0A0A0A] border-[#334155]/50 pl-10 text-white focus:border-[#FF3366]"
                           />
                         </div>
                       </div>
@@ -334,8 +334,8 @@ export default function DiscountsPage() {
                     )}
                     
                     {formSuccess && (
-                      <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-md">
-                        <p className="text-emerald-400 text-sm">Discount code created successfully!</p>
+                      <div className="p-3 bg-[#FF3366]/10 border border-[#FF3366]/30 rounded-md">
+                        <p className="text-[#FF3366] text-sm">Discount code created successfully!</p>
                       </div>
                     )}
                     
@@ -350,7 +350,7 @@ export default function DiscountsPage() {
                       </Button>
                       <Button
                         type="submit"
-                        className="bg-gradient-to-r from-[#FF6B6B] to-[#FF33A8] text-white hover:shadow-lg hover:shadow-[#FF6B6B]/20 transition-all duration-300"
+                        className="bg-gradient-to-r from-[#FF3366] to-[#FF33A8] text-white hover:shadow-lg hover:shadow-[#FF3366]/20 transition-all duration-300"
                         disabled={formLoading}
                       >
                         {formLoading ? "Creating..." : "Create Discount"}
@@ -363,13 +363,13 @@ export default function DiscountsPage() {
 
             {/* Error message */}
             {error && (
-              <div className="p-4 mb-6 bg-red-500/10 border border-red-500/30 rounded-md">
-                <p className="text-red-400">{error}</p>
+              <div className="p-4 mb-6 bg-[#FF3366]/10 border border-[#FF3366]/30 rounded-md">
+                <p className="text-[#FF3366]">{error}</p>
                 <Button
                   onClick={fetchDiscounts}
                   variant="outline"
                   size="sm"
-                  className="mt-2 border-red-500/30 text-red-400 hover:bg-red-500/10"
+                  className="mt-2 border-[#FF3366]/30 text-[#FF3366] hover:bg-[#FF3366]/10"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Try Again
@@ -380,7 +380,7 @@ export default function DiscountsPage() {
             {/* Loading state */}
             {loading && (
               <div className="flex flex-col items-center justify-center py-12">
-                <div className="w-16 h-16 border-4 border-t-[#FF6B6B] border-r-[#FF33A8]/40 border-b-[#FF33A8] border-l-[#FF6B6B]/40 rounded-full animate-spin mb-4"></div>
+                <div className="w-16 h-16 border-4 border-t-[#FF3366] border-r-[#FF33A8]/40 border-b-[#FF33A8] border-l-[#FF3366]/40 rounded-full animate-spin mb-4"></div>
                 <p className="text-[#94A3B8]">Loading discount codes...</p>
               </div>
             )}
@@ -388,14 +388,14 @@ export default function DiscountsPage() {
             {/* Discounts list */}
             {!loading && discounts.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-20 h-20 rounded-full bg-[#1E293B] flex items-center justify-center mx-auto mb-4">
-                  <Tag className="h-10 w-10 text-[#94A3B8]" />
+                <div className="w-20 h-20 rounded-full bg-[#0A0A0A] flex items-center justify-center mx-auto mb-4 border border-[#FF3366]/20">
+                  <Tag className="h-10 w-10 text-[#FF3366]" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">No Discount Codes</h3>
                 <p className="text-[#94A3B8] mb-6">You haven't created any discount codes yet</p>
                 <Button
                   onClick={() => setFormOpen(true)}
-                  className="bg-gradient-to-r from-[#FF6B6B] to-[#FF33A8] text-white hover:shadow-lg hover:shadow-[#FF6B6B]/20 transition-all duration-300"
+                  className="bg-gradient-to-r from-[#FF3366] to-[#FF33A8] text-white hover:shadow-lg hover:shadow-[#FF3366]/20 transition-all duration-300"
                 >
                   <PlusCircle className="h-4 w-4 mr-2" />
                   Create Your First Discount
@@ -406,10 +406,10 @@ export default function DiscountsPage() {
                 {discounts.map((discount) => (
                   <Card
                     key={discount.id}
-                    className={`bg-gradient-to-br from-[#1E293B] to-[#0D1117] border ${
+                    className={`bg-gradient-to-br from-[#0A0A0A] to-[#000000] border ${
                       isExpired(discount.expires_at) || isMaxedOut(discount.used, discount.max_uses)
                         ? "border-[#334155]/50 opacity-70"
-                        : "border-[#334155]/70"
+                        : "border-[#334155]/70 hover:border-[#FF3366]/40"
                     } transition-all duration-300 shadow-lg hover:shadow-xl`}
                   >
                     <CardContent className="p-6">
@@ -419,7 +419,7 @@ export default function DiscountsPage() {
                             className={`w-12 h-12 rounded-full flex items-center justify-center ${
                               isExpired(discount.expires_at) || isMaxedOut(discount.used, discount.max_uses)
                                 ? "bg-[#334155]/20 text-[#94A3B8]"
-                                : "bg-gradient-to-r from-[#FF6B6B]/20 to-[#FF33A8]/20 text-[#FF6B6B]"
+                                : "bg-gradient-to-r from-[#FF3366]/20 to-[#FF33A8]/20 text-[#FF3366]"
                             }`}
                           >
                             <Tag className="h-6 w-6" />
@@ -434,7 +434,7 @@ export default function DiscountsPage() {
                                   Inactive
                                 </span>
                               ) : (
-                                <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full">
+                                <span className="text-xs bg-[#FF3366]/20 text-[#FF3366] px-2 py-1 rounded-full">
                                   Active
                                 </span>
                               )}
@@ -452,13 +452,13 @@ export default function DiscountsPage() {
                           </div>
                           <div>
                             <p className="text-[#94A3B8]">Expires</p>
-                            <p className={`${isExpired(discount.expires_at) ? "text-red-400" : "text-white"}`}>
+                            <p className={`${isExpired(discount.expires_at) ? "text-[#FF3366]" : "text-white"}`}>
                               {formatDate(discount.expires_at)}
                             </p>
                           </div>
                           <div>
                             <p className="text-[#94A3B8]">Usage</p>
-                            <p className={`${isMaxedOut(discount.used, discount.max_uses) ? "text-red-400" : "text-white"}`}>
+                            <p className={`${isMaxedOut(discount.used, discount.max_uses) ? "text-[#FF3366]" : "text-white"}`}>
                               {discount.used} / {discount.max_uses === null ? "∞" : discount.max_uses}
                             </p>
                           </div>
@@ -469,7 +469,7 @@ export default function DiscountsPage() {
                             variant="ghost"
                             size="icon"
                             onClick={() => deleteDiscount(discount.id)}
-                            className="text-[#94A3B8] hover:text-red-400 hover:bg-red-500/10"
+                            className="text-[#94A3B8] hover:text-[#FF3366] hover:bg-[#FF3366]/10"
                           >
                             <Trash2 className="h-5 w-5" />
                           </Button>

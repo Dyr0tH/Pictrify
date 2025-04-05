@@ -30,6 +30,13 @@ interface UserData {
   [key: string]: any;
 }
 
+// Add this interface for Razorpay
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 export default function PurchaseCredits() {
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [totalPrice, setTotalPrice] = useState<number | null>(null);
@@ -47,6 +54,12 @@ export default function PurchaseCredits() {
   const [discountError, setDiscountError] = useState<string | null>(null);
   const [validatingDiscount, setValidatingDiscount] = useState(false);
   const [originalPrice, setOriginalPrice] = useState<number | null>(null);
+
+  // Add these state variables for Razorpay
+  const [razorpayOrderId, setRazorpayOrderId] = useState<string | null>(null);
+  const [razorpayKeyId, setRazorpayKeyId] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -84,6 +97,10 @@ export default function PurchaseCredits() {
         const { data: { user } } = await supabase.auth.getUser();
 
         if (user) {
+          setUserEmail(user.email || null);
+          // Extract name from email or use email as name
+          setUserName(user.email ? user.email.split('@')[0] : null);
+          
           const { data, error: userDataError } = await supabase
             .from('users')
             .select('*')
@@ -104,6 +121,16 @@ export default function PurchaseCredits() {
     };
 
     getUserData();
+    
+    // Load Razorpay script
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+    
+    return () => {
+      document.body.removeChild(script);
+    };
   }, []);
 
   // Handle plan selection
@@ -123,7 +150,7 @@ export default function PurchaseCredits() {
     }
   };
 
-  // Process payment
+  // Process payment with Razorpay
   const handlePurchase = async () => {
     if (!selectedPlan) {
       setError('Please select a plan first');
@@ -165,91 +192,125 @@ export default function PurchaseCredits() {
         }
       }
 
-      // In a real app, you would integrate with Razorpay or another payment provider here
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Simulate successful payment
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
         throw new Error('User not authenticated');
       }
 
-      // Add credits to user's account
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({
-          credits: (userData?.credits || 0) + (plan.credits || 0),
-        })
-        .eq('id', user.id);
+      // Create Razorpay order
+      const orderResponse = await fetch('/api/razorpay', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planId: plan.id,
+          userId: user.id,
+          discountApplied,
+          totalAmount: totalPrice || plan.price
+        }),
+      });
 
-      if (updateError) {
-        throw updateError;
+      const orderData = await orderResponse.json();
+
+      if (!orderResponse.ok) {
+        throw new Error(orderData.error || 'Failed to create order');
       }
 
-      // Record the transaction
-      const { error: transactionError } = await supabase
-        .from('transactions')
-        .insert([{
-          user_id: user.id,
-          amount: totalPrice || plan.price || 0,
-          type: 'TEST'
-        }]);
+      setRazorpayOrderId(orderData.orderId);
+      setRazorpayKeyId(orderData.keyId);
 
-      if (transactionError) {
-        console.log('Error recording transaction:', transactionError);
-        console.log('Transaction details:', {
-          user_id: user.id,
-          amount: totalPrice || plan.price || 0,
-          type: 'TEST'
-        });
-        // Don't throw here as credits are already added
-      }
+      // Initialize Razorpay
+      const options = {
+        key: orderData.keyId,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "Pictrify",
+        description: `${plan.name} - ${plan.credits} Credits`,
+        image: "/logo.png", // Update with your actual logo path
+        order_id: orderData.orderId,
+        handler: async function (response: any) {
+          try {
+            const verificationResponse = await fetch('/api/razorpay/verify', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                userId: user.id,
+                planId: plan.id,
+                credits: plan.credits,
+                amount: totalPrice || plan.price
+              }),
+            });
 
-      // If discount was applied, increment usage
-      if (discountApplied && discountCode) {
-        try {
-          // Use the API endpoint to increment discount usage
-          const response = await fetch('/api/increment-discount-usage', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              discountCode: discountCode.toUpperCase()
-            })
-          });
+            const verificationData = await verificationResponse.json();
 
-          if (!response.ok) {
-            const errorData = await response.json();
-            console.log('Error recording discount usage:', errorData.error);
-
-            // If the code has reached max uses but we somehow got here,
-            // we'll still complete the purchase since credits were already added
-            if (errorData.maxUsesReached) {
-              console.warn('Discount code reached max uses during purchase');
+            if (!verificationResponse.ok) {
+              throw new Error(verificationData.error || 'Payment verification failed');
             }
+
+            // Handle discount code if applied
+            if (discountApplied && discountCode) {
+              try {
+                // Use the API endpoint to increment discount usage
+                const response = await fetch('/api/increment-discount-usage', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    discountCode: discountCode.toUpperCase()
+                  })
+                });
+
+                if (!response.ok) {
+                  console.log('Error recording discount usage');
+                }
+              } catch (discountError) {
+                console.log('Error recording discount usage:', discountError);
+              }
+            }
+
+            setPurchaseSuccess(true);
+
+            // Dispatch event to notify dashboard
+            const event = new CustomEvent('credits-updated');
+            window.dispatchEvent(event);
+
+            // Redirect to dashboard after a delay
+            setTimeout(() => {
+              router.push('/dashboard?purchase=success');
+            }, 3000);
+          } catch (err) {
+            console.error('Verification error:', err);
+            setError(err instanceof Error ? err.message : 'Payment verification failed');
+            setPaymentProcessing(false);
           }
-        } catch (discountError) {
-          console.log('Error recording discount usage:', discountError);
+        },
+        prefill: {
+          name: userName || '',
+          email: userEmail || '',
+        },
+        theme: {
+          color: "#FF3366",
+        },
+        modal: {
+          ondismiss: function() {
+            setPaymentProcessing(false);
+          }
         }
-      }
+      };
 
-      setPurchaseSuccess(true);
-
-      // Dispatch event to notify dashboard
-      const event = new CustomEvent('credits-updated');
-      window.dispatchEvent(event);
-
-      // Redirect to dashboard after a delay
-      setTimeout(() => {
-        router.push('/dashboard?purchase=success');
-      }, 3000);
-
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
     } catch (err: unknown) {
       console.log('Payment error:', err);
       setError(err instanceof Error ? err.message : 'Failed to process payment. Please try again.');
-    } finally {
       setPaymentProcessing(false);
     }
   };
@@ -655,6 +716,7 @@ export default function PurchaseCredits() {
                             className="w-full bg-gradient-to-r from-[#FF3366] to-[#FF33A8] text-white hover:shadow-lg hover:shadow-[#FF3366]/20 transition-all duration-300"
                             onClick={handlePurchase}
                             disabled={paymentProcessing || !selectedPlan}
+                            id="rzp-button"
                           >
                             {paymentProcessing ? 'Processing...' : 'Complete Purchase'}
                             {!paymentProcessing && <Sparkles className="ml-2 h-4 w-4" />}
