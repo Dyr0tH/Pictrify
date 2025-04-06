@@ -111,16 +111,19 @@ export default function ImageTransformer({ userCredits, onCreditsUpdate }: Image
                 body: formData
             });
 
+            // First check if the response is ok before trying to parse JSON
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Error response:", errorText);
+                throw new Error(`API error (${response.status}): ${errorText.substring(0, 100)}`);
+            }
+
             let data;
             try {
                 data = await response.json();
             } catch (jsonError) {
                 console.error("JSON parsing error:", jsonError);
                 throw new Error("Failed to parse API response. The server may be experiencing issues.");
-            }
-
-            if (!response.ok) {
-                throw new Error(data?.error || "Failed to transform image");
             }
 
             setTransformedImage(data.imageUrl);

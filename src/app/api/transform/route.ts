@@ -5,7 +5,11 @@ import { supabase } from '@/utils/supabase/supabase-client'
 // Initialize OpenAI with API key from environment variable
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+  timeout: 60000, // Increase timeout to 60 seconds
+  maxRetries: 3,   // Add retries for reliability
 })
+
+export const maxDuration = 90; // Tell Vercel we need up to 90 seconds
 
 export async function POST(request: Request) {
   try {
@@ -18,6 +22,15 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: 'Image, style, and user ID are required' },
         { status: 400 }
+      )
+    }
+
+    // Check OpenAI API key is set
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('OPENAI_API_KEY is not set');
+      return NextResponse.json(
+        { error: 'Server Seems busy !!' },
+        { status: 500 }
       )
     }
 
@@ -125,12 +138,33 @@ export async function POST(request: Request) {
       imageUrl,
       remainingCredits,
       success: true
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     })
   } catch (error: any) {
     console.error('Error transforming image:', error)
+    
+    // Determine more specific error message
+    let errorMessage = 'Failed to transform image';
+    
+    if (error.timeout || error.code === 'ETIMEDOUT' || error.message?.includes('timeout')) {
+      errorMessage = 'The request timed out. Please try again with a smaller image.';
+    } else if (error.message && typeof error.message === 'string') {
+      errorMessage = error.message.substring(0, 200); // Limit error message length
+    } else if (error.response?.data?.error) {
+      errorMessage = error.response.data.error;
+    }
+
     return NextResponse.json(
-      { error: typeof error.message === 'string' ? error.message : 'Failed to transform image' },
-      { status: 500 }
+      { error: errorMessage },
+      { 
+        status: 500,
+        headers: { 
+          'Content-Type': 'application/json'
+        }
+      }
     )
   }
 } 
