@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/utils/supabase/supabase-client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users, Tag, CreditCard, BarChart4, Ticket, Megaphone } from "lucide-react";
+import { ArrowLeft, Users, Tag, CreditCard, BarChart4, Ticket, Megaphone, Package } from "lucide-react";
 import Link from "next/link";
 import TransitionTemplate from "@/components/TransitionTemplate";
 
@@ -222,6 +222,20 @@ export default function AdminDashboard() {
                     <div>
                       <h3 className="text-xl font-bold text-white">Transactions</h3>
                       <p className="text-[#94A3B8]">View payment history</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+              
+              <Link href="/dashboard/admin/plans">
+                <Card className="bg-[#0A0A0A] border border-[#334155]/30 hover:border-[#FF3366]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#FF3366]/10 h-full cursor-pointer">
+                  <CardContent className="p-6 flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#FF3366]/20 to-[#FF33A8]/20 flex items-center justify-center">
+                      <Package className="text-[#FF3366] h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white">Manage Plans</h3>
+                      <p className="text-[#94A3B8]">Edit subscription plans</p>
                     </div>
                   </CardContent>
                 </Card>

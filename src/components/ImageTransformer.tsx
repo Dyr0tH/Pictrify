@@ -71,6 +71,14 @@ export default function ImageTransformer({ userCredits, onCreditsUpdate }: Image
             }
             
             const file = acceptedFiles[0];
+            
+            // Check file size - Vercel has a 4.5MB limit on Hobby plan
+            const fileSizeMB = file.size / (1024 * 1024);
+            if (fileSizeMB > 4) {
+                setError(`Image size (${fileSizeMB.toFixed(2)}MB) exceeds the 4MB limit. Please upload a smaller image.`);
+                return;
+            }
+            
             setSelectedImage(file);
             setPreviewUrl(URL.createObjectURL(file));
             setTransformedImage(null);
@@ -83,7 +91,16 @@ export default function ImageTransformer({ userCredits, onCreditsUpdate }: Image
         accept: {
             'image/*': ['.png', '.jpg', '.jpeg', '.webp']
         },
-        maxFiles: 1
+        maxFiles: 1,
+        maxSize: 4 * 1024 * 1024, // 4MB limit
+        onDropRejected: (fileRejections) => {
+            const error = fileRejections[0]?.errors[0];
+            if (error?.code === 'file-too-large') {
+                setError('Image exceeds the 4MB size limit. Please upload a smaller image or compress it first.');
+            } else {
+                setError('Invalid file. Please upload a valid image file.');
+            }
+        }
     });
 
     const handleTransform = async () => {

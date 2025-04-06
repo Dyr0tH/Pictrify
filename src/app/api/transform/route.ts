@@ -25,6 +25,15 @@ export async function POST(request: Request) {
       )
     }
 
+    // Check file size - Vercel has a 4.5MB limit on Hobby plan
+    const fileSizeMB = imageFile.size / (1024 * 1024);
+    if (fileSizeMB > 4) {
+      return NextResponse.json(
+        { error: `Image size (${fileSizeMB.toFixed(2)}MB) exceeds the 4MB limit. Please upload a smaller image.` },
+        { status: 413 }
+      )
+    }
+
     // Check OpenAI API key is set
     if (!process.env.OPENAI_API_KEY) {
       console.error('OPENAI_API_KEY is not set');

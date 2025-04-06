@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { Righteous } from "next/font/google";
 import "./globals.css";
 import AnimatedBackground from "@/components/AnimatedBackground";
+import { satoshi, generalSans, cabinetGrotesk } from '@/fonts';
 
-const inter = Inter({ subsets: ["latin"] });
+// Keep Righteous for the logo/brand
 const righteous = Righteous({ 
     weight: "400",
     subsets: ["latin"],
@@ -23,7 +23,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} ${righteous.variable}`}>
+      <body className={`${satoshi.variable} ${generalSans.variable} ${cabinetGrotesk.variable} ${righteous.variable} font-sans`}>
         <AnimatedBackground />
         {children}
       </body>

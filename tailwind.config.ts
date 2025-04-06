@@ -9,6 +9,11 @@ export default {
   ],
   theme: {
   	extend: {
+      fontFamily: {
+        sans: ['var(--font-satoshi)', 'var(--font-general-sans)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-cabinet-grotesk)', 'var(--font-satoshi)', 'system-ui', 'sans-serif'],
+        brand: ['var(--font-righteous)', 'system-ui', 'sans-serif'],
+      },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

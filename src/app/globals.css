@@ -105,3 +105,59 @@ body {
 .neon-text-pink {
   text-shadow: 0 0 5px rgba(255, 51, 168, 0.8), 0 0 10px rgba(255, 51, 168, 0.5);
 }
+
+/* Font Styling Utilities */
+.font-satoshi {
+  font-family: var(--font-satoshi), system-ui, sans-serif;
+}
+
+.font-general-sans {
+  font-family: var(--font-general-sans), system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-cabinet-grotesk), var(--font-satoshi), system-ui, sans-serif;
+}
+
+.font-brand {
+  font-family: var(--font-righteous), system-ui, sans-serif;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-[#FF3366] to-[#FF33A8];
+}
+
+/* Premium heading styles */
+h1.premium, 
+.h1.premium {
+  @apply font-display font-bold tracking-tight;
+}
+
+h2.premium, 
+.h2.premium {
+  @apply font-display font-medium tracking-tight;
+}
+
+h3.premium, 
+.h3.premium {
+  @apply font-sans font-bold;
+}
+
+h4.premium, 
+.h4.premium {
+  @apply font-sans font-medium;
+}
+
+/* Micro-adjustments for specific font features */
+.tracking-display {
+  letter-spacing: -0.03em;
+}
+
+.tracking-heading {
+  letter-spacing: -0.02em;
+}
+
+.tracking-body {
+  letter-spacing: -0.01em;
+}
