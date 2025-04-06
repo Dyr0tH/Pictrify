@@ -43,6 +43,7 @@ export default function ImageTransformer({ userCredits, onCreditsUpdate }: Image
     const [error, setError] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [userPrompt, setUserPrompt] = useState<string>("");
 
     useEffect(() => {
         const getUser = async () => {
@@ -122,6 +123,7 @@ export default function ImageTransformer({ userCredits, onCreditsUpdate }: Image
             formData.append("image", selectedImage);
             formData.append("style", selectedStyle);
             formData.append("userId", userId);
+            formData.append("userPrompt", userPrompt);
 
             const response = await fetch("/api/transform", {
                 method: "POST",
@@ -304,6 +306,24 @@ export default function ImageTransformer({ userCredits, onCreditsUpdate }: Image
                             </div>
                         ))}
                     </RadioGroup>
+                </CardContent>
+            </Card>
+
+            {/* Custom Prompt Section */}
+            <Card className="bg-[#0A0A0A] border border-[#FF3366]/20 shadow-lg neon-glow-red">
+                <CardHeader>
+                    <CardTitle className="text-white text-lg">Custom Prompt (Optional)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-2">
+                        <p className="text-[#94A3B8] text-sm">Add custom instructions to guide the AI transformation</p>
+                        <textarea
+                            value={userPrompt}
+                            onChange={(e) => setUserPrompt(e.target.value)}
+                            placeholder="Example: 'Add cherry blossoms in the background' or 'Make it look like sunset'"
+                            className="w-full h-24 p-3 rounded-lg bg-[#0A0A0A] border border-[#FF3366]/20 text-white focus:border-[#FF3366] focus:ring-1 focus:ring-[#FF3366] transition-colors resize-none placeholder:text-[#94A3B8]/60"
+                        />
+                    </div>
                 </CardContent>
             </Card>
 

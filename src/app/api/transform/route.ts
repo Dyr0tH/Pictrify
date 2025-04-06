@@ -17,6 +17,7 @@ export async function POST(request: Request) {
     const imageFile = formData.get('image') as File
     const style = formData.get('style') as string
     const userId = formData.get('userId') as string
+    const userPrompt = formData.get('userPrompt') as string || "N/A"
 
     if (!imageFile || !style || !userId) {
       return NextResponse.json(
@@ -104,7 +105,7 @@ export async function POST(request: Request) {
     try {
       response = await openai.images.generate({
         model: "dall-e-3",
-        prompt: `${imageDescription}. Transform this scene into authentic ${style} style. Make it look high quality and maintain the original composition and key elements while applying the artistic style.`,
+        prompt: `${imageDescription}. Transform this scene into authentic ${style} style. Make it look high quality and maintain the original composition and key elements while applying the artistic style. ADDITIONAL INSTRUCTIONS: ${userPrompt}`,
         n: 1,
         size: "1024x1024",
         quality: "standard",
