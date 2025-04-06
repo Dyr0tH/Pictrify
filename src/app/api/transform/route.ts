@@ -5,11 +5,11 @@ import { supabase } from '@/utils/supabase/supabase-client'
 // Initialize OpenAI with API key from environment variable
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  timeout: 60000, // Increase timeout to 60 seconds
+  timeout: 50000, // Set timeout to 50 seconds to stay within Vercel limits
   maxRetries: 3,   // Add retries for reliability
 })
 
-export const maxDuration = 90; // Tell Vercel we need up to 90 seconds
+export const maxDuration = 60; // Adjust to the maximum allowed for Hobby plan (60 seconds)
 
 export async function POST(request: Request) {
   try {
