@@ -19,6 +19,7 @@ export default function SignupPage() {
     const [error, setError] = useState<string | null>(null)
     const [passwordsMatch, setPasswordsMatch] = useState(false)
     const router = useRouter()
+    const signUpCredits = process.env.NEXT_PUBLIC_SIGNUP_CREDITS || 4
 
     // Check if passwords match whenever either password field changes
     useEffect(() => {
@@ -75,7 +76,7 @@ export default function SignupPage() {
                         .insert([
                             { 
                                 id: data.user.id,
-                                credits: 6, // Start with 10 free credits
+                                credits: signUpCredits, // Start with 10 free credits
                                 is_admin: false
                             }
                         ])

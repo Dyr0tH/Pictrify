@@ -11,9 +11,7 @@ export async function POST(request: Request) {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      userId,
-      credits,
-      amount
+      userId
     } = await request.json();
 
     // Verify the payment signature
@@ -43,11 +41,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Add credits to user's account
+    // Add 15 credits to user's account for joining waitlist
+    const newCredits = (userData?.credits || 0) + 15;
+    
     const { error: updateError } = await supabase
       .from('users')
       .update({
-        credits: (userData?.credits || 0) + (credits || 0),
+        credits: newCredits,
       })
       .eq('id', userId);
 
@@ -58,12 +58,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // Record the transaction with razorpay_id
     const { error: transactionError } = await supabase
       .from('transactions')
       .insert([{
         user_id: userId,
-        amount: amount || 0,
+        amount: 39, // Standard waitlist amount
         type: 'RAZORPAY',
         razorpay_id: razorpay_payment_id,
       }]);
@@ -76,7 +75,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: 'Payment verified and credits added',
-      credits: (userData?.credits || 0) + (credits || 0)
+      credits: newCredits
     });
   } catch (error: any) {
     console.error('Error verifying payment:', error);

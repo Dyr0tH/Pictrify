@@ -1,15 +1,22 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Megaphone } from "lucide-react";
+import { ArrowLeft, Megaphone, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import TransitionTemplate from "@/components/TransitionTemplate";
 import { supabase } from "@/utils/supabase/supabase-client";
+import { useState, useEffect } from "react";
 
 export default function DashboardRestricted() {
   const router = useRouter();
+  const [showWaitlist, setShowWaitlist] = useState(false);
+  
+  useEffect(() => {
+    // Check if waitlist is enabled
+    setShowWaitlist(process.env.NEXT_PUBLIC_WAITLIST === 'true');
+  }, []);
   
   const handleReturnHome = async () => {
     // Log the user out
@@ -82,6 +89,19 @@ export default function DashboardRestricted() {
               </Button>
             </Link>
           </div>
+          
+          {showWaitlist && (
+            <div className="mt-6">
+              <Link href="/waitlist">
+                <Button 
+                  className="bg-[#0A0A0A] border border-[#FF3366]/70 text-white hover:bg-[#FF3366]/15 transition-all duration-300 shadow-md hover:shadow-[#FF3366]/10 rounded-full w-full sm:w-auto"
+                >
+                  <Users className="mr-2 h-4 w-4 text-[#FF3366]" />
+                  <span>Join the Waitlist</span>
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </TransitionTemplate>
