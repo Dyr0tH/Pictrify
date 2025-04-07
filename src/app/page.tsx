@@ -386,7 +386,7 @@ export default function Page() {
                             <AnimatedLink href="/auth/signup" className="w-full md:w-auto">
                                 <Button className="bg-gradient-to-r from-[#FF3366] to-[#FF33A8] text-white hover:from-[#FF33A8] hover:to-[#FF3366] transition-all duration-300 px-8 py-4 text-lg whitespace-nowrap w-full md:w-auto">
                                     Try It Free
-                                </Button>
+                            </Button>
                             </AnimatedLink>
                         </div>
                     </section>
@@ -496,7 +496,7 @@ export default function Page() {
                                 No coding knowledge required. Our intuitive interface makes transformation a breeze.
                             </p>
                         </div>
-                        
+
                         {/* Workflow Steps */}
                         <div className="max-w-6xl mx-auto">
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-12">
@@ -769,9 +769,9 @@ export default function Page() {
                                         </AnimatedLink>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <PricingPlans />
+                        </div>
+
+                        <PricingPlans />
                         </div>
                     </section>
                     

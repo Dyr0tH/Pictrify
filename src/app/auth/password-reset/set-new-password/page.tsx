@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -19,20 +19,48 @@ export default function SetNewPasswordPage() {
     const [success, setSuccess] = useState(false)
     const [isRecoveryMode, setIsRecoveryMode] = useState(false)
     const router = useRouter()
+    const searchParams = useSearchParams()
 
     useEffect(() => {
-        // Set up auth state change listener for PASSWORD_RECOVERY event
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'PASSWORD_RECOVERY') {
-                setIsRecoveryMode(true)
+        const setupSession = async () => {
+            // Get token from URL query parameters
+            const token = searchParams.get('token')
+            
+            if (token) {
+                try {
+                    // Set the session using the token
+                    const { data, error } = await supabase.auth.setSession({
+                        access_token: token,
+                        refresh_token: ''
+                    })
+                    
+                    if (error) {
+                        console.error('Error setting session:', error.message)
+                        setError('Invalid or expired reset link')
+                    } else if (data.session) {
+                        setIsRecoveryMode(true)
+                    }
+                } catch (e: any) {
+                    console.error('Error in setupSession:', e.message)
+                    setError('Failed to process reset link')
+                }
+            } else {
+                // Fallback to auth state change listener
+                const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+                    if (event === 'PASSWORD_RECOVERY') {
+                        setIsRecoveryMode(true)
+                    }
+                })
+                
+                // Clean up subscription on unmount
+                return () => {
+                    subscription.unsubscribe()
+                }
             }
-        })
-        
-        // Clean up subscription on unmount
-        return () => {
-            subscription.unsubscribe()
         }
-    }, [])
+        
+        setupSession()
+    }, [searchParams])
 
     const handleUpdatePassword = async (e: React.FormEvent) => {
         e.preventDefault()
