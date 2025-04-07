@@ -80,7 +80,7 @@ export default function LoginPage() {
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center">
                                         <Label htmlFor="password" className="text-[#94A3B8]">Password</Label>
-                                        <Link href="/auth/forgot-password" className="text-xs text-[#FF3366] hover:text-[#FF33A8] transition-colors">
+                                        <Link href="/auth/password-reset" className="text-xs text-[#FF3366] hover:text-[#FF33A8] transition-colors">
                                             Forgot password?
                                         </Link>
                                     </div>
