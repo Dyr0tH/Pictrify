@@ -22,7 +22,9 @@ export default function PasswordResetPage() {
         setError(null)
 
         try {
-            const { error } = await supabase.auth.resetPasswordForEmail(email);
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: 'https://pictrify.vercel.app/auth/password-reset/set-new-password'
+            });
             if (error) {
                 setError(error.message)
             } else {

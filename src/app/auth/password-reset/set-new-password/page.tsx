@@ -28,7 +28,7 @@ export default function SetNewPasswordPage() {
 
         if (type === 'recovery' && access_token) {
             // Set the token for the session
-            supabase.auth.setSession({ access_token, refresh_token: '' })
+            supabase.auth.setSession({ access_token, refresh_token: localStorage.getItem("sb-refresh-token") ?? '' })
                 .then(({ data, error }) => {
                     if (error) {
                         setError("Invalid or expired reset link. Please request a new one.")
