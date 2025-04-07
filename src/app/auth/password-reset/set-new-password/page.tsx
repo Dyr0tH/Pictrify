@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
@@ -11,7 +11,8 @@ import { supabase } from '@/utils/supabase/supabase-client'
 import TransitionTemplate from '@/components/TransitionTemplate'
 import { Lock, CheckCircle } from 'lucide-react'
 
-export default function SetNewPasswordPage() {
+// Main component that uses useSearchParams
+function PasswordResetForm() {
     const [newPassword, setNewPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
     const [loading, setLoading] = useState(false)
@@ -212,5 +213,38 @@ export default function SetNewPasswordPage() {
                 </div>
             </div>
         </TransitionTemplate>
+    )
+}
+
+// Loading fallback component
+function LoadingFallback() {
+    return (
+        <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-[#0A0A0A] to-[#000000] text-white">
+            <div className="w-full max-w-md px-4">
+                <div className="flex justify-center mb-8">
+                    <div className="flex items-center space-x-2">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#FF3366] to-[#FF33A8] flex items-center justify-center">
+                            <span className="text-white font-bold text-xl">P</span>
+                        </div>
+                        <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#FF3366] to-[#FF33A8] font-['Righteous'] tracking-wider">PICTRIFY</span>
+                    </div>
+                </div>
+                
+                <div className="bg-[#0A0A0A] border border-[#334155]/50 shadow-xl rounded-lg p-8 text-center">
+                    <div className="w-12 h-12 border-4 border-t-[#FF3366] border-r-[#FF33A8]/40 border-b-[#FF33A8] border-l-[#FF3366]/40 rounded-full animate-spin mx-auto mb-4"></div>
+                    <h3 className="text-xl font-semibold text-white mb-2">Loading...</h3>
+                    <p className="text-[#94A3B8]">Please wait while we set up your password reset.</p>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// Main page component with Suspense boundary
+export default function SetNewPasswordPage() {
+    return (
+        <Suspense fallback={<LoadingFallback />}>
+            <PasswordResetForm />
+        </Suspense>
     )
 } 
