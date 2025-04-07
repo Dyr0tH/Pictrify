@@ -21,28 +21,17 @@ export default function SetNewPasswordPage() {
     const router = useRouter()
 
     useEffect(() => {
-        // Check if we're in recovery mode
-        const checkRecoveryMode = async () => {
-            const { data: { session } } = await supabase.auth.getSession()
-            
-            if (session) {
+        // Set up auth state change listener for PASSWORD_RECOVERY event
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'PASSWORD_RECOVERY') {
                 setIsRecoveryMode(true)
-            } else {
-                // Set up auth state change listener
-                const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-                    if (event === 'PASSWORD_RECOVERY') {
-                        setIsRecoveryMode(true)
-                    }
-                })
-                
-                // Clean up subscription on unmount
-                return () => {
-                    subscription.unsubscribe()
-                }
             }
-        }
+        })
         
-        checkRecoveryMode()
+        // Clean up subscription on unmount
+        return () => {
+            subscription.unsubscribe()
+        }
     }, [])
 
     const handleUpdatePassword = async (e: React.FormEvent) => {
