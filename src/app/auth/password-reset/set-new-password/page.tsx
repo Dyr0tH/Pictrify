@@ -17,28 +17,32 @@ export default function SetNewPasswordPage() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState(false)
-    const [tokenValid, setTokenValid] = useState(false)
+    const [isRecoveryMode, setIsRecoveryMode] = useState(false)
     const router = useRouter()
 
     useEffect(() => {
-        const hash = window.location.hash
-        const params = new URLSearchParams(hash.replace('#', ''))
-        const type = params.get('type')
-        const access_token = params.get('access_token')
-
-        if (type === 'recovery' && access_token) {
-            // Set the token for the session
-            supabase.auth.setSession({ access_token, refresh_token: localStorage.getItem("sb-refresh-token") ?? '' })
-                .then(({ data, error }) => {
-                    if (error) {
-                        setError("Invalid or expired reset link. Please request a new one.")
-                    } else {
-                        setTokenValid(true)
+        // Check if we're in recovery mode
+        const checkRecoveryMode = async () => {
+            const { data: { session } } = await supabase.auth.getSession()
+            
+            if (session) {
+                setIsRecoveryMode(true)
+            } else {
+                // Set up auth state change listener
+                const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+                    if (event === 'PASSWORD_RECOVERY') {
+                        setIsRecoveryMode(true)
                     }
                 })
-        } else {
-            setError("Invalid reset link. Please request a new one.")
+                
+                // Clean up subscription on unmount
+                return () => {
+                    subscription.unsubscribe()
+                }
+            }
         }
+        
+        checkRecoveryMode()
     }, [])
 
     const handleUpdatePassword = async (e: React.FormEvent) => {
@@ -119,7 +123,7 @@ export default function SetNewPasswordPage() {
                                         </Button>
                                     </Link>
                                 </div>
-                            ) : !tokenValid ? (
+                            ) : !isRecoveryMode ? (
                                 <div className="text-center py-6">
                                     <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/10 flex items-center justify-center">
                                         <Lock className="w-8 h-8 text-red-500" />
