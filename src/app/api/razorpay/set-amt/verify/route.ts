@@ -27,7 +27,41 @@ export async function POST(request: Request) {
       );
     }
 
-    // Get user's current credits
+    // First, record the transaction
+    const { error: transactionError } = await supabase
+      .from('transactions')
+      .insert([{
+        user_id: userId,
+        amount: 39, // Standard waitlist amount
+        type: 'RAZORPAY',
+        razorpay_id: razorpay_payment_id,
+      }]);
+
+    if (transactionError) {
+      return NextResponse.json(
+        { error: 'Failed to record transaction' },
+        { status: 500 }
+      );
+    }
+
+    // Then update the waitlist status
+    const { error: waitlistUpdateError } = await supabase
+      .from('users')
+      .update({
+        waitlist_status: {
+          "waitlist_1st_launch": true
+        }
+      })
+      .eq('id', userId);
+
+    if (waitlistUpdateError) {
+      return NextResponse.json(
+        { error: 'Failed to update waitlist status' },
+        { status: 500 }
+      );
+    }
+
+    // Finally, get user's current credits and add the waitlist bonus
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('credits')
@@ -58,27 +92,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const { error: transactionError } = await supabase
-      .from('transactions')
-      .insert([{
-        user_id: userId,
-        amount: 39, // Standard waitlist amount
-        type: 'RAZORPAY',
-        razorpay_id: razorpay_payment_id,
-      }]);
-
-    if (transactionError) {
-      console.error('Error recording transaction:', transactionError);
-      // Don't throw here as credits are already added
-    }
-
     return NextResponse.json({
       success: true,
       message: 'Payment verified and credits added',
       credits: newCredits
     });
   } catch (error: any) {
-    console.error('Error verifying payment:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }

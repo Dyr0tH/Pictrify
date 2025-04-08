@@ -19,14 +19,18 @@ function PasswordResetForm() {
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState(false)
     const [isRecoveryMode, setIsRecoveryMode] = useState(false)
+    const [tokenValidating, setTokenValidating] = useState(true) // Start with true as we validate on load
     const router = useRouter()
     const searchParams = useSearchParams()
 
     useEffect(() => {
         const setupSession = async () => {
+            // Start token validation - show loading state
+            setTokenValidating(true)
+
             // Get token from URL query parameter
             const tokenHash = searchParams.get('token')
-            
+
             if (tokenHash) {
                 try {
                     // Verify the OTP token
@@ -34,7 +38,7 @@ function PasswordResetForm() {
                         token_hash: tokenHash,
                         type: 'recovery'
                     })
-                    
+
                     if (error) {
                         console.error('Error verifying token:', error.message)
                         setError('Invalid or expired reset link')
@@ -46,20 +50,29 @@ function PasswordResetForm() {
                     setError('Failed to process reset link')
                 }
             }
-            
+
             // Also set up auth state change listener as a fallback
-            const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            const { data: { subscription } } = supabase.auth.onAuthStateChange((event, _session) => {
                 if (event === 'PASSWORD_RECOVERY') {
                     setIsRecoveryMode(true)
+                    // Token validation complete - add a slight delay before hiding the loading screen
+                    setTimeout(() => {
+                        setTokenValidating(false)
+                    }, 1000) // Keep loading screen visible for 1 more second
                 }
             })
-            
+
+            // Token validation complete - add a slight delay before hiding the loading screen
+            setTimeout(() => {
+                setTokenValidating(false)
+            }, 1000) // Keep loading screen visible for 1 more second
+
             // Clean up subscription on unmount
             return () => {
                 subscription.unsubscribe()
             }
         }
-        
+
         setupSession()
     }, [searchParams])
 
@@ -103,6 +116,33 @@ function PasswordResetForm() {
         }
     }
 
+    // If token is being validated, show loading screen
+    if (tokenValidating) {
+        return (
+            <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-[#0A0A0A] to-[#000000] text-white">
+                <div className="w-full max-w-md px-4">
+                    <div className="flex justify-center mb-8">
+                        <div className="flex items-center space-x-2">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#FF3366] to-[#FF33A8] flex items-center justify-center">
+                                <span className="text-white font-bold text-xl">P</span>
+                            </div>
+                            <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#FF3366] to-[#FF33A8] font-['Righteous'] tracking-wider">PICTRIFY</span>
+                        </div>
+                    </div>
+
+                    <div className="bg-[#0A0A0A] border border-[#334155]/50 shadow-xl rounded-lg p-8 text-center relative overflow-hidden">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-[#FF3366]/5 to-[#FF33A8]/5 opacity-100 blur-sm z-0"></div>
+                        <div className="relative z-10">
+                            <div className="w-12 h-12 border-4 border-t-[#FF3366] border-r-[#FF33A8]/40 border-b-[#FF33A8] border-l-[#FF3366]/40 rounded-full animate-spin mx-auto mb-4"></div>
+                            <h3 className="text-xl font-semibold text-white mb-2">Verifying Reset Link...</h3>
+                            <p className="text-[#94A3B8]">Please wait while we validate your password reset link.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <TransitionTemplate>
             <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-[#0A0A0A] to-[#000000] text-white">
@@ -115,7 +155,7 @@ function PasswordResetForm() {
                             <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#FF3366] to-[#FF33A8] font-['Righteous'] tracking-wider">PICTRIFY</span>
                         </div>
                     </Link>
-                    
+
                     <Card className="bg-[#0A0A0A] border border-[#334155]/50 shadow-xl relative overflow-hidden">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-[#FF3366]/5 to-[#FF33A8]/5 opacity-100 blur-sm z-0"></div>
                         <CardHeader className="text-center border-b border-[#334155]/30 pb-6 relative z-10">
@@ -124,7 +164,7 @@ function PasswordResetForm() {
                                 {success ? 'Your password has been updated successfully' : 'Create a new password for your account'}
                             </CardDescription>
                         </CardHeader>
-                        
+
                         <CardContent className="pt-6 relative z-10">
                             {success ? (
                                 <div className="text-center py-6">
@@ -170,7 +210,7 @@ function PasswordResetForm() {
                                             className="bg-[#0A0A0A] border-[#334155] focus:border-[#FF3366] focus:ring-[#FF3366]/20 text-white"
                                         />
                                     </div>
-                                    
+
                                     <div className="space-y-2">
                                         <Label htmlFor="confirmPassword" className="text-[#94A3B8]">Confirm Password</Label>
                                         <Input
@@ -183,16 +223,16 @@ function PasswordResetForm() {
                                             className="bg-[#0A0A0A] border-[#334155] focus:border-[#FF3366] focus:ring-[#FF3366]/20 text-white"
                                         />
                                     </div>
-                                    
+
                                     {error && (
                                         <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-md">
                                             <p className="text-red-400 text-sm">{error}</p>
                                         </div>
                                     )}
-                                    
-                                    <Button 
-                                        type="submit" 
-                                        className="w-full bg-gradient-to-r from-[#FF3366] to-[#FF33A8] text-white hover:from-[#FF33A8] hover:to-[#FF3366] transition-all duration-300" 
+
+                                    <Button
+                                        type="submit"
+                                        className="w-full bg-gradient-to-r from-[#FF3366] to-[#FF33A8] text-white hover:from-[#FF33A8] hover:to-[#FF3366] transition-all duration-300"
                                         disabled={loading}
                                     >
                                         {loading ? 'Updating...' : 'Update Password'}
@@ -200,7 +240,7 @@ function PasswordResetForm() {
                                 </form>
                             )}
                         </CardContent>
-                        
+
                         <CardFooter className="flex justify-center border-t border-[#334155]/30 pt-6 relative z-10">
                             <p className="text-[#94A3B8] text-sm">
                                 Remember your password?{' '}
@@ -229,7 +269,7 @@ function LoadingFallback() {
                         <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#FF3366] to-[#FF33A8] font-['Righteous'] tracking-wider">PICTRIFY</span>
                     </div>
                 </div>
-                
+
                 <div className="bg-[#0A0A0A] border border-[#334155]/50 shadow-xl rounded-lg p-8 text-center">
                     <div className="w-12 h-12 border-4 border-t-[#FF3366] border-r-[#FF33A8]/40 border-b-[#FF33A8] border-l-[#FF3366]/40 rounded-full animate-spin mx-auto mb-4"></div>
                     <h3 className="text-xl font-semibold text-white mb-2">Loading...</h3>
@@ -247,4 +287,4 @@ export default function SetNewPasswordPage() {
             <PasswordResetForm />
         </Suspense>
     )
-} 
+}

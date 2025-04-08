@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Megaphone, Users } from "lucide-react";
+import { ArrowLeft, Megaphone, Users, Check } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -12,11 +12,48 @@ import { useState, useEffect } from "react";
 export default function DashboardRestricted() {
   const router = useRouter();
   const [showWaitlist, setShowWaitlist] = useState(false);
+  const [waitlistStatus, setWaitlistStatus] = useState<{ waitlist_1st_launch?: boolean } | null>(null);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // Check if waitlist is enabled
-    setShowWaitlist(process.env.NEXT_PUBLIC_WAITLIST === 'true');
-  }, []);
+    const checkWaitlistStatus = async () => {
+      try {
+        // Check if waitlist is enabled
+        const isWaitlistEnabled = process.env.NEXT_PUBLIC_WAITLIST === 'true';
+        setShowWaitlist(isWaitlistEnabled);
+
+        if (isWaitlistEnabled) {
+          // Get current user
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          
+          if (userError || !user) {
+            router.push('/auth/login');
+            return;
+          }
+
+          // Get user's waitlist status
+          const { data: userData, error: statusError } = await supabase
+            .from('users')
+            .select('waitlist_status')
+            .eq('id', user.id)
+            .single();
+
+          if (statusError) {
+            console.error('Error fetching waitlist status:', statusError);
+            return;
+          }
+
+          setWaitlistStatus(userData?.waitlist_status || {});
+        }
+      } catch (error) {
+        console.error('Error checking waitlist status:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkWaitlistStatus();
+  }, [router]);
   
   const handleReturnHome = async () => {
     // Log the user out
@@ -60,7 +97,7 @@ export default function DashboardRestricted() {
             Dashboard Under Maintenance
           </h1>
           
-          <p className="text-[#94A3B8] text-lg mb-6">
+          <p className="text-[#94A3B8] mb-8">
             We're working on updating our services and crafting an even better experience for you. 
             The dashboard will be back soon with exciting new features.
           </p>
@@ -90,16 +127,23 @@ export default function DashboardRestricted() {
             </Link>
           </div>
           
-          {showWaitlist && (
+          {showWaitlist && !loading && (
             <div className="mt-6">
-              <Link href="/waitlist">
-                <Button 
-                  className="bg-[#0A0A0A] border border-[#FF3366]/70 text-white hover:bg-[#FF3366]/15 transition-all duration-300 shadow-md hover:shadow-[#FF3366]/10 rounded-full w-full sm:w-auto"
-                >
-                  <Users className="mr-2 h-4 w-4 text-[#FF3366]" />
-                  <span>Join the Waitlist</span>
-                </Button>
-              </Link>
+              {waitlistStatus && waitlistStatus.waitlist_1st_launch ? (
+                <div className="bg-[#FF3366]/10 border border-[#FF3366]/30 text-[#FF3366] p-4 rounded-lg flex items-center justify-center">
+                  <Check className="mr-2 h-4 w-4" />
+                  <span>You've already joined the waitlist!</span>
+                </div>
+              ) : (
+                <Link href="/waitlist">
+                  <Button 
+                    className="bg-[#0A0A0A] border border-[#FF3366]/70 text-white hover:bg-[#FF3366]/15 transition-all duration-300 shadow-md hover:shadow-[#FF3366]/10 rounded-full w-full sm:w-auto"
+                  >
+                    <Users className="mr-2 h-4 w-4 text-[#FF3366]" />
+                    <span>Join the Waitlist</span>
+                  </Button>
+                </Link>
+              )}
             </div>
           )}
         </div>
