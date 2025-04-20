@@ -94,12 +94,11 @@ export default function DashboardRestricted() {
           </div>
           
           <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#FF3366] to-[#FF33A8] mb-4">
-            Dashboard Under Maintenance
+            WAITLIST IS LIVE !!
           </h1>
           
           <p className="text-[#94A3B8] mb-8">
-            We're working on updating our services and crafting an even better experience for you. 
-            The dashboard will be back soon with exciting new features.
+          We're currently in early access mode — join the waitlist to be the first to experience the platform when we launch.
           </p>
           
           <div className="mx-auto w-32 h-1 bg-gradient-to-r from-[#FF3366]/50 to-[#FF33A8]/50 rounded-full mb-6"></div>
