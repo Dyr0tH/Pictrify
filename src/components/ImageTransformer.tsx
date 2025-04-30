@@ -4,8 +4,15 @@ import { useDropzone } from "react-dropzone";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Loader2, Upload, Download, Image as ImageIcon, AlertCircle } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+    DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { Loader2, Upload, Download, Image as ImageIcon, AlertCircle, ChevronDown } from "lucide-react";
 import { supabase } from "@/utils/supabase/supabase-client";
+import Image from "next/image";
 
 interface ImageTransformerProps {
   userCredits: number;
@@ -238,7 +245,7 @@ export default function ImageTransformer({ userCredits, onCreditsUpdate }: Image
                         
                         {selectedImage && previewUrl ? (
                             <div className="space-y-4">
-                                <img
+                                <Image
                                     src={previewUrl}
                                     alt="Selected"
                                     className="max-h-64 mx-auto rounded-lg"
@@ -271,41 +278,46 @@ export default function ImageTransformer({ userCredits, onCreditsUpdate }: Image
                     <CardTitle className="text-white text-lg">Choose Your Style</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <RadioGroup
-                        value={selectedStyle}
-                        onValueChange={setSelectedStyle}
-                        className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                    >
-                        {artStyles.map((style) => (
-                            <div
-                                key={style.id}
-                                className={`relative flex cursor-pointer rounded-lg border p-4 transition-all
-                                    ${selectedStyle === style.id
-                                        ? "border-[#FF3366] bg-[#FF3366]/10"
-                                        : "border-[#FF3366]/20 hover:border-[#FF3366] hover:bg-[#FF3366]/5"}`}
-                                onClick={() => setSelectedStyle(style.id)}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button 
+                                className={`p-6 w-full justify-between bg-[#0A0A0A] border ${selectedStyle ? 'border-[#FF3366]' : 'border-[#FF3366]/20'} hover:border-[#FF3366] hover:bg-[#FF3366]/5 text-white`}
                             >
-                                <RadioGroupItem
-                                    value={style.id}
-                                    id={style.id}
-                                    className="sr-only"
-                                />
-                                <div className="flex w-full items-center justify-between">
-                                    <div className="flex items-center">
-                                        <div className="text-sm">
-                                            <label
-                                                htmlFor={style.id}
-                                                className="font-medium text-white cursor-pointer"
-                                            >
-                                                {style.name}
-                                            </label>
-                                            <p className="text-[#94A3B8]">{style.description}</p>
+                                <div className="flex items-center">
+                                    <div className="w-6 h-6 rounded-full bg-[#FF3366]/10 flex items-center justify-center mr-2">
+                                        <ImageIcon className="h-4 w-4 text-[#FF3366]" />
+                                    </div>
+                                    <span>
+                                        {selectedStyle 
+                                            ? artStyles.find(style => style.id === selectedStyle)?.name 
+                                            : "Select a style"}
+                                    </span>
+                                </div>
+                                <ChevronDown className="h-4 w-4 ml-2 text-[#FF3366]" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent 
+                            className="w-full min-w-[240px] bg-[#0A0A0A] border border-[#FF3366]/30 shadow-lg shadow-[#FF3366]/5"
+                        >
+                            {artStyles.map((style) => (
+                                <DropdownMenuItem 
+                                    key={style.id}
+                                    className={`flex items-center py-3 px-4 cursor-pointer hover:bg-[#FF3366]/10 focus:bg-[#FF3366]/10 ${selectedStyle === style.id ? 'bg-[#FF3366]/10' : ''}`}
+                                    onClick={() => setSelectedStyle(style.id)}
+                                >
+                                    <div className="flex items-center space-x-3">
+                                        <div className="w-8 h-8 rounded-full bg-[#FF3366]/10 flex items-center justify-center flex-shrink-0">
+                                            <ImageIcon className="h-4 w-4 text-[#FF3366]" />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <h3 className="font-medium text-white">{style.name}</h3>
+                                            <p className="text-[#94A3B8] text-xs">{style.description}</p>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        ))}
-                    </RadioGroup>
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </CardContent>
             </Card>
 
@@ -366,7 +378,7 @@ export default function ImageTransformer({ userCredits, onCreditsUpdate }: Image
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="relative w-full max-w-2xl mx-auto">
-                            <img
+                            <Image
                                 src={transformedImage}
                                 alt="Transformed"
                                 className="rounded-lg w-full h-full object-contain"
@@ -386,4 +398,4 @@ export default function ImageTransformer({ userCredits, onCreditsUpdate }: Image
             )}
         </div>
     );
-} 
+}
