@@ -848,10 +848,10 @@ export default function Page() {
                                     </div>
                                 </div>
                                 <div className="flex space-x-4">
-                                    <a href="#" className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center text-[#94A3B8] hover:bg-[#FF3366]/20 hover:text-[#FF3366] transition-all duration-300">
+                                    <a href="https://x.com/Pictrify_" className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center text-[#94A3B8] hover:bg-[#FF3366]/20 hover:text-[#FF3366] transition-all duration-300">
                                         <TwitterIcon size={18} />
                                     </a>
-                                    <a href="#" className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center text-[#94A3B8] hover:bg-[#FF3366]/20 hover:text-[#FF3366] transition-all duration-300">
+                                    <a href="https://instagram.com/shahid.growth" className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center text-[#94A3B8] hover:bg-[#FF3366]/20 hover:text-[#FF3366] transition-all duration-300">
                                         <Instagram size={18} />
                                     </a>
                                 </div>
@@ -914,9 +914,9 @@ export default function Page() {
                                 © {new Date().getFullYear()} PICTRIFY. All rights reserved.
                             </p>
                             <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-6">
-                                <Link href="#" className="text-[#94A3B8] text-sm hover:text-[#FF3366] transition-colors">Privacy Policy</Link>
-                                <Link href="#" className="text-[#94A3B8] text-sm hover:text-[#FF3366] transition-colors">Terms of Service</Link>
-                                <Link href="#" className="text-[#94A3B8] text-sm hover:text-[#FF3366] transition-colors">Cookie Policy</Link>
+                                <Link href="/policies/privacy_policy" className="text-[#94A3B8] text-sm hover:text-[#FF3366] transition-colors">Privacy Policy</Link>
+                                <Link href="/policies/terms_of_service" className="text-[#94A3B8] text-sm hover:text-[#FF3366] transition-colors">Terms of Service</Link>
+                                <Link href="/policies/cookie_policy" className="text-[#94A3B8] text-sm hover:text-[#FF3366] transition-colors">Cookie Policy</Link>
                             </div>
                         </div>
                     </div>

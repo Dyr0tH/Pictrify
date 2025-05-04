@@ -248,7 +248,9 @@ export default function ImageTransformer({ userCredits, onCreditsUpdate }: Image
                                 <Image
                                     src={previewUrl}
                                     alt="Selected"
-                                    className="max-h-64 mx-auto rounded-lg"
+                                    width={400}
+                                    height={300}
+                                    className="max-h-64 mx-auto rounded-lg object-contain"
                                 />
                                 <div className="relative group">
                                     <p className="text-[#94A3B8] max-w-full truncate px-2" title={selectedImage.name}>
@@ -381,6 +383,8 @@ export default function ImageTransformer({ userCredits, onCreditsUpdate }: Image
                             <Image
                                 src={transformedImage}
                                 alt="Transformed"
+                                width={800}
+                                height={600}
                                 className="rounded-lg w-full h-full object-contain"
                             />
                         </div>

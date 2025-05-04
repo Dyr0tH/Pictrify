@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import OpenAI from 'openai'
+import OpenAI, { toFile } from 'openai'
 import { supabase } from '@/utils/supabase/supabase-client'
 
 // Initialize OpenAI with API key from environment variable
@@ -65,63 +65,37 @@ export async function POST(request: Request) {
       )
     }
 
-    // Convert the image to base64
-    const buffer = await imageFile.arrayBuffer()
-    const base64Image = Buffer.from(buffer).toString('base64')
-    
-    // First analyze the image with GPT-4 Vision to generate a detailed description
-    let visionResponse;
+    // Convert the uploaded file to an OpenAI-compatible format
+    let openAIFile;
     try {
-      visionResponse = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "text", text: `Analyze this image and create a detailed description for transforming it into ${style} style. Focus on the key elements, composition, subject matter, colors, and overall feel.` },
-              {
-                type: "image_url",
-                image_url: {
-                  url: `data:image/${imageFile.type};base64,${base64Image}`
-                }
-              }
-            ]
-          }
-        ],
-        max_tokens: 500
-      });
-    } catch (visionError: any) {
-      console.error('Vision API error:', visionError);
+      const buffer = Buffer.from(await imageFile.arrayBuffer());
+      openAIFile = await toFile(buffer, imageFile.name, { type: imageFile.type });
+    } catch (fileError: any) {
+      console.error('File conversion error:', fileError);
       return NextResponse.json(
-        { error: 'Failed to analyze image: ' + (visionError.message || 'Unknown vision API error') },
+        { error: 'Failed to process the uploaded image: ' + (fileError.message || 'Unknown file error') },
         { status: 500 }
       )
     }
-    
-    const imageDescription = visionResponse.choices[0]?.message?.content || `An image in ${style} style`;
 
-    // Use DALL-E 3 for image generation with the detailed description
+    // Use the new gpt-image-1 model for image transformation
     let response;
     try {
-      response = await openai.images.generate({
-        model: "dall-e-3",
-        prompt: `${imageDescription}. Transform this scene into authentic ${style} style. Make it look high quality and maintain the original composition and key elements while applying the artistic style. ADDITIONAL INSTRUCTIONS: ${userPrompt}`,
-        n: 1,
-        size: "1024x1024",
-        quality: "standard",
-        style: "vivid"
+      const promptText = `Transform this image into ${style} style. Some additional params to use if applicable else ignore - ${userPrompt}`;
+      
+      response = await openai.images.edit({
+        model: "gpt-image-1",
+        image: openAIFile,
+        prompt: promptText,
       });
-    } catch (dalleError: any) {
-      console.error('DALL-E API error:', dalleError);
+      
+      if (!response.data?.[0]) {
+        throw new Error('No image data returned from API');
+      }
+    } catch (imageEditError: any) {
+      console.error('Image transformation error:', imageEditError);
       return NextResponse.json(
-        { error: 'Failed to generate transformed image: ' + (dalleError.message || 'Unknown DALL-E API error') },
-        { status: 500 }
-      )
-    }
-
-    if (!response.data[0]?.url) {
-      return NextResponse.json(
-        { error: 'No image URL returned from the API' },
+        { error: 'Failed to transform image: ' + (imageEditError.message || 'Unknown API error') },
         { status: 500 }
       )
     }
@@ -140,9 +114,9 @@ export async function POST(request: Request) {
       )
     }
 
-    // Create a response that includes a script to dispatch the refresh event
-    const imageUrl = response.data[0].url
-    const remainingCredits = userData.credits - 2
+    // Create a response that includes necessary data
+    const imageUrl = response.data[0].url || ''; // Get URL (b64_json is also available if needed)
+    const remainingCredits = userData.credits - 2;
     
     return NextResponse.json({
       imageUrl,
